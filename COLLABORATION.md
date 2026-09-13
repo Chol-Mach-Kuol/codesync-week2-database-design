@@ -465,41 +465,18 @@ All team members reviewed and agreed to this log before submission.
 > **Commit message:** `feat: add database_setup.sql and json_schemas`
 
 ```bash
-mkdir -p data/processed
+mkdir -p database examples
 ```
 
-### `data/processed/dashboard.json`
+### `database/database_setup.sql`
 
-```json
-{
-  "kpis": {
-    "Total Transactions": 0,
-    "Total Amount (RWF)": 0,
-    "Total Fees (RWF)": 0,
-    "Unique Users": 0
-  },
-  "categories": [
-    { "name": "incoming_money",    "count": 0 },
-    { "name": "payment_merchant",  "count": 0 },
-    { "name": "transfer_sent",     "count": 0 },
-    { "name": "bank_deposit",      "count": 0 },
-    { "name": "airtime_purchase",  "count": 0 },
-    { "name": "cash_power",        "count": 0 },
-    { "name": "bundle_data",       "count": 0 },
-    { "name": "cash_withdrawal",   "count": 0 },
-    { "name": "third_party_debit", "count": 0 },
-    { "name": "reversal",          "count": 0 },
-    { "name": "other",             "count": 0 }
-  ],
-  "monthly_totals": []
-}
-```
+See the full SQL content in the COLLABORATION.md under Kuol's original section — copy it exactly into this file.
 
-**Commit message:** `feat: add dashboard JSON structure`
+### `examples/json_schemas.json`
 
----
+See the full JSON content in the COLLABORATION.md under Kuol's original section — copy it exactly into this file.
 
-## Required Repository Structure (verify before deadline)
+**Commit message:** `feat: add database_setup.sql and json_schemas` (verify before deadline)
 
 ```
 /
