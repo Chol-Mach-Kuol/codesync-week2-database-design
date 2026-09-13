@@ -9,9 +9,9 @@
 | Team Member | Branch | Deliverables |
 |---|---|---|
 | 🟦 **Chol Mach Kuol Chol** | `feature/project-lead` | ERD diagram, Design Document, README update, Scrum board |
-| 🟩 **Kuol Akech Riak Kuol** | `feature/database-api` | `data/processed/dashboard.json`, `database/database_setup.sql`, `examples/json_schemas.json` |
+| 🟩 **Kuol Akech Riak Kuol** | `feature/database-api` | `data/processed/dashboard.json` |
 | 🟨 **Alier Akuang Alier Piel** | `feature/etl` | Shell scripts, test placeholders, AI usage log |
-| 🟥 **Abay Mulat Tessema** | `feature/frontend-dashboard` | *(reassigned — no tasks this week)* |
+| 🟥 **Abay Mulat Tessema** | `feature/frontend-dashboard` | `database/database_setup.sql`, `examples/json_schemas.json` |
 
 ---
 
@@ -295,10 +295,8 @@ Update your Scrum board (GitHub Projects or Trello):
 
 > **YOUR TASKS:**
 > 1. 📊 Create `data/processed/dashboard.json` with KPIs, category counts, and monthly totals structure
-> 2. 🗄️ Create `database/database_setup.sql` (DDL + indexes + seed data + 5 DML records per table + CRUD queries)
-> 3. 💾 Create `examples/json_schemas.json` (all entities + complex nested transaction object + SQL-to-JSON mapping)
 >
-> **Commit message:** `feat: add database_setup.sql, json_schemas, and dashboard`
+> **Commit message:** `feat: add dashboard JSON structure`
 
 ```bash
 mkdir -p data/processed
@@ -460,7 +458,11 @@ All team members reviewed and agreed to this log before submission.
 
 ## 🟥 Abay Mulat Tessema — `feature/frontend-dashboard`
 
-> Tasks reassigned to Kuol this week. No deliverables required.
+> **YOUR TASKS:**
+> 1. 🗄️ Create `database/database_setup.sql` (DDL + indexes + seed data + 5 DML records per table + CRUD queries)
+> 2. 💾 Create `examples/json_schemas.json` (all entities + complex nested transaction object + SQL-to-JSON mapping)
+>
+> **Commit message:** `feat: add database_setup.sql and json_schemas`
 
 ```bash
 mkdir -p data/processed
