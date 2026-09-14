@@ -1,0 +1,123 @@
+{
+  "_comment": "CodeSync — MoMo SMS Analytics Platform | JSON Schemas | Week 2",
+
+  "entities": {
+
+    "category": {
+      "id": 1,
+      "name": "incoming_money",
+      "description": "Money received from another MoMo user"
+    },
+
+    "user": {
+      "id": 1,
+      "phone_number": "+250781000001",
+      "name": "Alice Uwimana",
+      "first_seen": "2024-01-05",
+      "last_seen": "2024-08-20"
+    },
+
+    "transaction": {
+      "id": 1,
+      "transaction_id": "TXN-2024-0001",
+      "category_id": 1,
+      "user_id": 1,
+      "amount": 50000.00,
+      "fee": 0.00,
+      "balance_after": 120000.00,
+      "transaction_date": "2024-08-01T09:15:00",
+      "raw_body": "You have received 50,000 RWF from Alice Uwimana (+250781000001). Your new balance is 120,000 RWF.",
+      "status": "success"
+    },
+
+    "tag": {
+      "id": 1,
+      "name": "high-value"
+    },
+
+    "system_log": {
+      "id": 1,
+      "transaction_id": "TXN-2024-0001",
+      "level": "INFO",
+      "message": "Transaction TXN-2024-0001 parsed and inserted successfully.",
+      "created_at": "2024-08-01T09:15:05"
+    }
+  },
+
+  "complex_transaction": {
+    "id": 1,
+    "transaction_id": "TXN-2024-0001",
+    "amount": 50000.00,
+    "fee": 0.00,
+    "balance_after": 120000.00,
+    "transaction_date": "2024-08-01T09:15:00",
+    "raw_body": "You have received 50,000 RWF from Alice Uwimana (+250781000001). Your new balance is 120,000 RWF.",
+    "status": "success",
+    "category": {
+      "id": 1,
+      "name": "incoming_money",
+      "description": "Money received from another MoMo user"
+    },
+    "user": {
+      "id": 1,
+      "phone_number": "+250781000001",
+      "name": "Alice Uwimana",
+      "first_seen": "2024-01-05",
+      "last_seen": "2024-08-20"
+    },
+    "tags": [
+      { "id": 1, "name": "high-value" },
+      { "id": 3, "name": "reviewed" }
+    ],
+    "logs": [
+      {
+        "id": 1,
+        "level": "INFO",
+        "message": "Transaction TXN-2024-0001 parsed and inserted successfully.",
+        "created_at": "2024-08-01T09:15:05"
+      }
+    ]
+  },
+
+  "sql_to_json_mapping": {
+    "categories": {
+      "id":          "category.id",
+      "name":        "category.name",
+      "description": "category.description"
+    },
+    "users": {
+      "id":           "user.id",
+      "phone_number": "user.phone_number",
+      "name":         "user.name",
+      "first_seen":   "user.first_seen",
+      "last_seen":    "user.last_seen"
+    },
+    "transactions": {
+      "id":               "transaction.id",
+      "transaction_id":   "transaction.transaction_id",
+      "category_id":      "transaction.category (nested object in API response)",
+      "user_id":          "transaction.user (nested object in API response)",
+      "amount":           "transaction.amount",
+      "fee":              "transaction.fee",
+      "balance_after":    "transaction.balance_after",
+      "transaction_date": "transaction.transaction_date",
+      "raw_body":         "transaction.raw_body",
+      "status":           "transaction.status"
+    },
+    "tags": {
+      "id":   "tag.id",
+      "name": "tag.name"
+    },
+    "transaction_tags": {
+      "transaction_id": "transaction.tags[] (resolved as array of tag objects)",
+      "tag_id":         "transaction.tags[].id"
+    },
+    "system_logs": {
+      "id":             "system_log.id",
+      "transaction_id": "system_log.transaction_id",
+      "level":          "system_log.level",
+      "message":        "system_log.message",
+      "created_at":     "system_log.created_at"
+    }
+  }
+}
