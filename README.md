@@ -8,7 +8,7 @@
 ## Project Overview
 
 This system processes MoMo mobile money SMS data exported from XML, stores it in
-a structured SQLite database, and exposes it through a dashboard and API. The
+a structured MySQL database, and exposes it through a dashboard and API. The
 pipeline extracts transactions, categorises them by SMS pattern, links them to
 counterparty users, and logs every processing event for auditability.
 
@@ -37,10 +37,10 @@ counterparty users, and logs every processing event for auditability.
 
 ## Database Design
 
-The SQLite database (`momo.db`) is initialised by running:
+The MySQL database (`momo`) is initialised by running:
 
 ```bash
-sqlite3 momo.db < database/database_setup.sql
+mysql -u root -p momo < database/database_setup.sql
 ```
 
 ### Tables
@@ -56,7 +56,7 @@ sqlite3 momo.db < database/database_setup.sql
 
 ### Key Design Decisions
 
-- **Foreign keys** enforced via `PRAGMA foreign_keys = ON`
+- **Foreign keys** enforced via `InnoDB` engine on all tables
 - **CHECK constraints** on `amount >= 0`, `fee >= 0`, `status`, and `level` values
 - **UNIQUE constraints** on `transaction_id`, `phone_number`, `categories.name`, `tags.name`
 - **Indexes** on `transaction_date`, `category_id`, `user_id`, `level`, `created_at`
