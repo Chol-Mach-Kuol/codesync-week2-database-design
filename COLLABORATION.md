@@ -229,10 +229,10 @@ WHERE tg.name = 'high-value';
 -- 4. Error log entries from the last 7 days
 SELECT * FROM system_logs
 WHERE level = 'ERROR'
-  AND created_at >= datetime('now', '-7 days');
+  AND created_at >= NOW() - INTERVAL 7 DAY;
 
 -- 5. Monthly transaction totals
-SELECT strftime('%Y-%m', transaction_date) AS month,
+SELECT DATE_FORMAT(transaction_date, '%Y-%m') AS month,
        COUNT(*) AS count, SUM(amount) AS total
 FROM transactions
 GROUP BY month
@@ -249,7 +249,7 @@ ORDER BY month;
 6. `CHECK (amount >= 0)` and `CHECK (fee >= 0)` — reject negative financial values.
 7. `CHECK (status IN ('success','failed','reversed'))` — rejects unknown status strings.
 8. `CHECK (level IN ('INFO','WARNING','ERROR'))` — rejects invalid log levels.
-9. `PRAGMA foreign_keys = ON` — enforces all FK relationships at runtime.
+9. `ENGINE=InnoDB` — enforces all FK relationships at runtime.
 ```
 
 ### 3. README update
