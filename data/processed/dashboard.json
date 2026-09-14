@@ -1,41 +1,29 @@
 {
-  "_comment": "CodeSync — MoMo SMS Analytics Platform | Dashboard KPIs | Week 2",
-
-  "dashboard": {
-    "generated_at": "2024-08-22T00:00:00",
-    "period": {
-      "from": "2024-01-01",
-      "to":   "2024-08-22"
-    },
-
-    "kpis": {
-      "total_transactions":  5,
-      "total_amount_rwf":    106000.00,
-      "total_fees_rwf":      550.00,
-      "unique_users":        5,
-      "success_rate_pct":    100.0,
-      "avg_transaction_rwf": 21200.00
-    },
-
-    "by_category": [
-      { "category": "incoming_money",         "tx_count": 1, "total_amount": 50000.00, "total_fees": 0.00   },
-      { "category": "transfer_to_mobile",     "tx_count": 1, "total_amount": 20000.00, "total_fees": 200.00 },
-      { "category": "withdrawal_from_agent",  "tx_count": 1, "total_amount": 30000.00, "total_fees": 300.00 },
-      { "category": "airtime_bill_payment",   "tx_count": 1, "total_amount":  1000.00, "total_fees": 0.00   },
-      { "category": "payment_to_code_holder", "tx_count": 1, "total_amount":  5000.00, "total_fees": 50.00  }
-    ],
-
-    "by_status": [
-      { "status": "success",  "tx_count": 5 },
-      { "status": "failed",   "tx_count": 0 },
-      { "status": "reversed", "tx_count": 0 }
-    ],
-
-    "top_tags": [
-      { "tag": "high-value",  "tx_count": 2 },
-      { "tag": "reviewed",    "tx_count": 1 },
-      { "tag": "flagged",     "tx_count": 1 },
-      { "tag": "reconciled",  "tx_count": 1 }
-    ]
-  }
+  "kpis": {
+    "Total Transactions": "14,285",
+    "Total Amount (RWF)": "85,420,000",
+    "Total Fees (RWF)": "1,245,500",
+    "Unique Users": "3,150"
+  },
+  "categories": [
+    { "name": "incoming_money", "count": 4120 },
+    { "name": "payment_merchant", "count": 3450 },
+    { "name": "transfer_sent", "count": 2890 },
+    { "name": "airtime_purchase", "count": 1420 },
+    { "name": "bundle_data", "count": 980 },
+    { "name": "cash_power", "count": 610 },
+    { "name": "bank_deposit", "count": 380 },
+    { "name": "cash_withdrawal", "count": 240 },
+    { "name": "third_party_debit", "count": 110 },
+    { "name": "reversal", "count": 45 },
+    { "name": "other", "count": 40 }
+  ],
+  "monthly_totals": [
+    { "month": "Jan", "amount": 12400000 },
+    { "month": "Feb", "amount": 11800000 },
+    { "month": "Mar", "amount": 13500000 },
+    { "month": "Apr", "amount": 14200000 },
+    { "month": "May", "amount": 16100000 },
+    { "month": "Jun", "amount": 17420000 }
+  ]
 }
