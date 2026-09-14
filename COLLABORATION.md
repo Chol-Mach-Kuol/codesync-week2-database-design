@@ -9,9 +9,9 @@
 | Team Member | Branch | Deliverables |
 |---|---|---|
 | 🟦 **Chol Mach Kuol Chol** | `feature/project-lead` | ERD diagram, Design Document, README update, Scrum board |
-| 🟩 **Kuol Akech Riak Kuol** | `feature/database-api` | `data/processed/dashboard.json` |
+| 🟩 **Kuol Akech Riak Kuol** | `feature/database-api` | `database/database_setup.sql`, `examples/json_schemas.json` |
 | 🟨 **Alier Akuang Alier Piel** | `feature/etl` | Shell scripts, test placeholders, AI usage log |
-| 🟥 **Abay Mulat Tessema** | `feature/frontend-dashboard` | `database/database_setup.sql`, `examples/json_schemas.json` |
+| 🟥 **Abay Mulat Tessema** | `feature/frontend-dashboard` | `data/processed/dashboard.json` |
 
 ---
 
@@ -229,10 +229,10 @@ WHERE tg.name = 'high-value';
 -- 4. Error log entries from the last 7 days
 SELECT * FROM system_logs
 WHERE level = 'ERROR'
-  AND created_at >= datetime('now', '-7 days');
+  AND created_at >= NOW() - INTERVAL 7 DAY;
 
 -- 5. Monthly transaction totals
-SELECT strftime('%Y-%m', transaction_date) AS month,
+SELECT DATE_FORMAT(transaction_date, '%Y-%m') AS month,
        COUNT(*) AS count, SUM(amount) AS total
 FROM transactions
 GROUP BY month
@@ -249,7 +249,7 @@ ORDER BY month;
 6. `CHECK (amount >= 0)` and `CHECK (fee >= 0)` — reject negative financial values.
 7. `CHECK (status IN ('success','failed','reversed'))` — rejects unknown status strings.
 8. `CHECK (level IN ('INFO','WARNING','ERROR'))` — rejects invalid log levels.
-9. `PRAGMA foreign_keys = ON` — enforces all FK relationships at runtime.
+9. `ENGINE=InnoDB` — enforces all FK relationships at runtime.
 ```
 
 ### 3. README update
@@ -294,9 +294,10 @@ Update your Scrum board (GitHub Projects or Trello):
 ## 🟩 Kuol Akech Riak Kuol — `feature/database-api`
 
 > **YOUR TASKS:**
-> 1. 📊 Create `data/processed/dashboard.json` with KPIs, category counts, and monthly totals structure
+> 1. 🗄️ Create `database/database_setup.sql` (DDL + indexes + seed data + 5 DML records per table + CRUD queries)
+> 2. 💾 Create `examples/json_schemas.json` (all entities + complex nested transaction object + SQL-to-JSON mapping)
 >
-> **Commit message:** `feat: add dashboard JSON structure`
+> **Commit message:** `feat: add database_setup.sql and json_schemas`
 
 ```bash
 mkdir -p data/processed
@@ -459,10 +460,9 @@ All team members reviewed and agreed to this log before submission.
 ## 🟥 Abay Mulat Tessema — `feature/frontend-dashboard`
 
 > **YOUR TASKS:**
-> 1. 🗄️ Create `database/database_setup.sql` (DDL + indexes + seed data + 5 DML records per table + CRUD queries)
-> 2. 💾 Create `examples/json_schemas.json` (all entities + complex nested transaction object + SQL-to-JSON mapping)
+> 1. 📊 Create `data/processed/dashboard.json` with KPIs, category counts, and monthly totals structure
 >
-> **Commit message:** `feat: add database_setup.sql and json_schemas`
+> **Commit message:** `feat: add dashboard JSON structure`
 
 ```bash
 mkdir -p database examples
