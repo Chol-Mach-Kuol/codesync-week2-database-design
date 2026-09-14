@@ -114,7 +114,7 @@ Create `docs/design_document.md`:
 # Database Design Document — MoMo Analytics Platform
 
 ## Overview
-The database uses SQLite with 6 tables designed to store, categorize, tag, and log
+The database uses MySQL with 6 tables designed to store, categorize, tag, and log
 MoMo SMS transaction data extracted from XML. The schema prioritises referential
 integrity, query performance, and full traceability of every SMS record.
 
@@ -259,10 +259,10 @@ Add a **Database Design** section to `README.md`:
 ```markdown
 ## Database Design
 
-The SQLite database (`momo.db`) is created by running:
+The MySQL database (`momo`) is created by running:
 
 ```bash
-sqlite3 momo.db < database/database_setup.sql
+mysql -u root -p momo < database/database_setup.sql
 ```
 
 Key files:
@@ -436,7 +436,7 @@ AI was not asked to design, generate, or explain any of the above.
 | Date       | Team Member  | AI Tool  | What We Asked                                          | How We Used It                                              |
 |------------|--------------|----------|--------------------------------------------------------|-------------------------------------------------------------|
 | 2026-09-13 | Kuol Akech   | Amazon Q | Spell-check on a comment inside `database_setup.sql`   | Fixed a typo in a comment — no logic or code was changed    |
-| 2026-09-13 | Kuol Akech   | Amazon Q | "Is `AUTOINCREMENT` one word in SQLite?"               | Confirmed spelling of a keyword — we already knew the logic |
+| 2026-09-13 | Kuol Akech   | Amazon Q | "Is `AUTO_INCREMENT` one word in MySQL?"               | Confirmed spelling of a keyword — we already knew the logic |
 | 2026-09-13 | Alier Akuang | Amazon Q | Grammar check on the README database section paragraph | Two words reworded — technical content unchanged            |
 | 2026-09-13 | Chol Mach    | Amazon Q | "What does MySQL best practice say about index naming?" | Read the answer for reference — index decisions made by us  |
 | 2026-09-13 | Abay Mulat   | Amazon Q | "Is my JSON missing a closing bracket?" (syntax check) | Found a missing `}` — the JSON structure was designed by us |
@@ -473,72 +473,82 @@ mkdir -p database examples
 ```sql
 -- MoMo Analytics Platform — Database Setup
 -- Author: Abay Mulat Tessema
--- Run: sqlite3 momo.db < database/database_setup.sql
+-- Run: mysql -u root -p momo < database/database_setup.sql
 
-PRAGMA foreign_keys = ON;
+CREATE DATABASE IF NOT EXISTS momo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE momo;
 
 -- ─── DDL ────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS categories (
-    id          INTEGER     PRIMARY KEY AUTOINCREMENT,
-    name        VARCHAR(50) NOT NULL UNIQUE,           -- machine-readable type
-    description TEXT                                   -- human-readable label
-);
+    id          INT          NOT NULL AUTO_INCREMENT,
+    name        VARCHAR(50)  NOT NULL UNIQUE,           -- machine-readable type
+    description TEXT,                                   -- human-readable label
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS users (
-    id           INTEGER      PRIMARY KEY AUTOINCREMENT,
-    phone_number VARCHAR(20)  UNIQUE,                  -- counterparty identifier
-    name         VARCHAR(100),                         -- extracted from SMS
-    first_seen   DATE,                                 -- earliest transaction date
-    last_seen    DATE                                  -- most recent transaction date
-);
+    id           INT          NOT NULL AUTO_INCREMENT,
+    phone_number VARCHAR(20)  UNIQUE,                   -- counterparty identifier
+    name         VARCHAR(100),                          -- extracted from SMS
+    first_seen   DATE,                                  -- earliest transaction date
+    last_seen    DATE,                                  -- most recent transaction date
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS transactions (
-    id               INTEGER      PRIMARY KEY AUTOINCREMENT,
-    transaction_id   VARCHAR(100) UNIQUE,              -- MoMo reference number
-    category_id      INTEGER      REFERENCES categories(id),
-    user_id          INTEGER      REFERENCES users(id),
-    amount           REAL         CHECK (amount >= 0), -- RWF, non-negative
-    fee              REAL         CHECK (fee >= 0),    -- service fee, non-negative
-    balance_after    REAL,                             -- balance post-transaction
-    transaction_date DATETIME,                         -- timestamp from SMS
-    raw_body         TEXT,                             -- original SMS for traceability
-    status           VARCHAR(20)  DEFAULT 'success'
-                                  CHECK (status IN ('success','failed','reversed'))
-);
+    id               INT           NOT NULL AUTO_INCREMENT,
+    transaction_id   VARCHAR(100)  UNIQUE,              -- MoMo reference number
+    category_id      INT,
+    user_id          INT,
+    amount           DECIMAL(15,2) CHECK (amount >= 0), -- RWF, non-negative
+    fee              DECIMAL(15,2) CHECK (fee >= 0),    -- service fee, non-negative
+    balance_after    DECIMAL(15,2),                     -- balance post-transaction
+    transaction_date DATETIME,                          -- timestamp from SMS
+    raw_body         TEXT,                              -- original SMS for traceability
+    status           VARCHAR(20)   NOT NULL DEFAULT 'success'
+                                   CHECK (status IN ('success','failed','reversed')),
+    PRIMARY KEY (id),
+    FOREIGN KEY (category_id) REFERENCES categories(id),
+    FOREIGN KEY (user_id)     REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tags (
-    id   INTEGER     PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR(50) NOT NULL UNIQUE               -- e.g. flagged, high-value
-);
+    id   INT         NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE,                   -- e.g. flagged, high-value
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Junction table: resolves M:N between transactions and tags
 CREATE TABLE IF NOT EXISTS transaction_tags (
-    transaction_id INTEGER NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
-    tag_id         INTEGER NOT NULL REFERENCES tags(id)         ON DELETE CASCADE,
-    PRIMARY KEY (transaction_id, tag_id)           -- composite PK prevents duplicates
-);
+    transaction_id INT NOT NULL,
+    tag_id         INT NOT NULL,
+    PRIMARY KEY (transaction_id, tag_id),               -- composite PK prevents duplicates
+    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id)         REFERENCES tags(id)         ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS system_logs (
-    id             INTEGER     PRIMARY KEY AUTOINCREMENT,
-    transaction_id VARCHAR(100),                       -- nullable for pipeline events
-    level          VARCHAR(10) NOT NULL
-                               CHECK (level IN ('INFO','WARNING','ERROR')),
-    message        TEXT        NOT NULL,
-    created_at     DATETIME    DEFAULT CURRENT_TIMESTAMP
-);
+    id             INT          NOT NULL AUTO_INCREMENT,
+    transaction_id VARCHAR(100),                        -- nullable for pipeline events
+    level          VARCHAR(10)  NOT NULL
+                                CHECK (level IN ('INFO','WARNING','ERROR')),
+    message        TEXT         NOT NULL,
+    created_at     DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ─── Indexes ─────────────────────────────────────────────────────────────────
 
-CREATE INDEX IF NOT EXISTS idx_transactions_date     ON transactions(transaction_date);
-CREATE INDEX IF NOT EXISTS idx_transactions_category ON transactions(category_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_user     ON transactions(user_id);
-CREATE INDEX IF NOT EXISTS idx_logs_level            ON system_logs(level);
-CREATE INDEX IF NOT EXISTS idx_logs_created          ON system_logs(created_at);
+CREATE INDEX idx_transactions_date     ON transactions(transaction_date);
+CREATE INDEX idx_transactions_category ON transactions(category_id);
+CREATE INDEX idx_transactions_user     ON transactions(user_id);
+CREATE INDEX idx_logs_level            ON system_logs(level);
+CREATE INDEX idx_logs_created          ON system_logs(created_at);
 
 -- ─── Seed: categories ────────────────────────────────────────────────────────
 
-INSERT OR IGNORE INTO categories (name, description) VALUES
+INSERT IGNORE INTO categories (name, description) VALUES
     ('incoming_money',    'Money received from another MoMo user'),
     ('payment_merchant',  'Payment made to a merchant or business'),
     ('transfer_sent',     'Money transferred to another MoMo user'),
@@ -553,14 +563,14 @@ INSERT OR IGNORE INTO categories (name, description) VALUES
 
 -- ─── Seed: tags ──────────────────────────────────────────────────────────────
 
-INSERT OR IGNORE INTO tags (name) VALUES
+INSERT IGNORE INTO tags (name) VALUES
     ('high-value'),
     ('flagged'),
     ('duplicate');
 
 -- ─── DML: sample users (5 records) ──────────────────────────────────────────
 
-INSERT OR IGNORE INTO users (phone_number, name, first_seen, last_seen) VALUES
+INSERT IGNORE INTO users (phone_number, name, first_seen, last_seen) VALUES
     ('0781234567', 'Alice Uwase',    '2024-01-05', '2024-06-20'),
     ('0782345678', 'Bob Nkurunziza', '2024-02-10', '2024-06-18'),
     ('0783456789', 'Clara Mukamana', '2024-01-15', '2024-05-30'),
@@ -569,7 +579,7 @@ INSERT OR IGNORE INTO users (phone_number, name, first_seen, last_seen) VALUES
 
 -- ─── DML: sample transactions (5 records) ────────────────────────────────────
 
-INSERT OR IGNORE INTO transactions
+INSERT IGNORE INTO transactions
     (transaction_id, category_id, user_id, amount, fee, balance_after, transaction_date, raw_body, status)
 VALUES
     ('TXN-001', 1, 1, 50000.00, 0.00,   150000.00, '2024-06-01 08:23:00',
@@ -594,7 +604,7 @@ INSERT INTO system_logs (transaction_id, level, message) VALUES
 
 -- ─── DML: sample tags applied (junction table) ───────────────────────────────
 
-INSERT OR IGNORE INTO transaction_tags (transaction_id, tag_id) VALUES
+INSERT IGNORE INTO transaction_tags (transaction_id, tag_id) VALUES
     (1, 1),  -- TXN-001 tagged high-value
     (2, 2),  -- TXN-002 tagged flagged
     (1, 2);  -- TXN-001 also tagged flagged
