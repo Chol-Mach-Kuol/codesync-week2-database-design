@@ -153,7 +153,16 @@ INSERT INTO transactions (transaction_id, category_id, user_id, amount, fee, bal
      'success'),
     ('TXN-2024-0005', 2, 5,  5000.00,   50.00,  63450.00, '2024-08-20 16:00:00',
      'Payment of 5,000 RWF to code holder Eve Ingabire (+250785000005). Fee: 50 RWF. Balance: 63,450 RWF.',
-     'success');
+     'success'),
+    ('TXN-2024-0006', 9, 2, 75000.00,  750.00, -12300.00, '2024-08-22 10:00:00',
+     'Bank transfer of 75,000 RWF to Bob Nkurunziza (+250782000002). Fee: 750 RWF. Balance: -12,300 RWF.',
+     'failed'),
+    ('TXN-2024-0007', 4, 3, 100000.00,   0.00, 198800.00, '2024-08-23 13:20:00',
+     'Bank deposit of 100,000 RWF from Claire Mukamana (+250783000003). Balance: 198,800 RWF.',
+     'success'),
+    ('TXN-2024-0008', 7, 1,  15000.00, 150.00, 183650.00, '2024-08-24 09:05:00',
+     'Third-party transaction of 15,000 RWF via Alice Uwimana (+250781000001). Fee: 150 RWF. Balance: 183,650 RWF.',
+     'reversed');
 
 -- =============================================================
 -- SEED DATA: tags
@@ -173,7 +182,9 @@ INSERT INTO transaction_tags (transaction_id, tag_id) VALUES
     (1, 3),  -- TXN-2024-0001 → reviewed
     (2, 2),  -- TXN-2024-0002 → flagged
     (4, 1),  -- TXN-2024-0004 → high-value
-    (5, 5);  -- TXN-2024-0005 → reconciled
+    (5, 5),  -- TXN-2024-0005 → reconciled
+    (7, 1),  -- TXN-2024-0007 → high-value
+    (8, 2);  -- TXN-2024-0008 → flagged
 
 -- =============================================================
 -- SEED DATA: system_logs (mix of transaction-level + pipeline events)
@@ -185,7 +196,10 @@ INSERT INTO system_logs (transaction_id, level, message) VALUES
     ('TXN-2024-0004', 'INFO',    'Transaction TXN-2024-0004 parsed and inserted successfully.'),
     ('TXN-2024-0005', 'INFO',    'Transaction TXN-2024-0005 parsed and inserted successfully.'),
     (NULL,            'INFO',    'ETL pipeline started. Source file: modified_sms_v2.xml'),
-    (NULL,            'INFO',    'ETL pipeline completed. 5 transactions processed, 0 errors.');
+    ('TXN-2024-0006', 'ERROR',   'Transaction TXN-2024-0006: bank transfer failed, insufficient balance.'),
+    ('TXN-2024-0007', 'INFO',    'Transaction TXN-2024-0007 parsed and inserted successfully.'),
+    ('TXN-2024-0008', 'WARNING', 'Transaction TXN-2024-0008 reversed by third-party provider.'),
+    (NULL,            'INFO',    'ETL pipeline completed. 8 transactions processed, 1 error.');
 
 -- =============================================================
 -- SAMPLE CRUD OPERATIONS

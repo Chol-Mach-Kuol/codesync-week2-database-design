@@ -41,6 +41,19 @@
       "level": "INFO",
       "message": "Transaction TXN-2024-0001 parsed and inserted successfully.",
       "created_at": "2024-08-01T09:15:05"
+    },
+
+    "failed_transaction": {
+      "id": 6,
+      "transaction_id": "TXN-2024-0006",
+      "category_id": 9,
+      "user_id": 2,
+      "amount": 75000.00,
+      "fee": 750.00,
+      "balance_after": -12300.00,
+      "transaction_date": "2024-08-22T10:00:00",
+      "raw_body": "Bank transfer of 75,000 RWF to Bob Nkurunziza (+250782000002). Fee: 750 RWF. Balance: -12,300 RWF.",
+      "status": "failed"
     }
   },
 
