@@ -300,37 +300,18 @@ Update your Scrum board (GitHub Projects or Trello):
 > **Commit message:** `feat: add database_setup.sql and json_schemas`
 
 ```bash
-mkdir -p data/processed
+mkdir -p database examples
 ```
 
-### `data/processed/dashboard.json`
+### `database/database_setup.sql`
 
-```json
-{
-  "kpis": {
-    "Total Transactions": 0,
-    "Total Amount (RWF)": 0,
-    "Total Fees (RWF)": 0,
-    "Unique Users": 0
-  },
-  "categories": [
-    { "name": "incoming_money",    "count": 0 },
-    { "name": "payment_merchant",  "count": 0 },
-    { "name": "transfer_sent",     "count": 0 },
-    { "name": "bank_deposit",      "count": 0 },
-    { "name": "airtime_purchase",  "count": 0 },
-    { "name": "cash_power",        "count": 0 },
-    { "name": "bundle_data",       "count": 0 },
-    { "name": "cash_withdrawal",   "count": 0 },
-    { "name": "third_party_debit", "count": 0 },
-    { "name": "reversal",          "count": 0 },
-    { "name": "other",             "count": 0 }
-  ],
-  "monthly_totals": []
-}
-```
+See the full SQL script in `database/database_setup.sql` — DDL + indexes + seed data + 5 DML records + CRUD queries.
 
-**Commit message:** `feat: add dashboard JSON structure`
+### `examples/json_schemas.json`
+
+See the full JSON schemas in `examples/json_schemas.json` — all entities + complex nested transaction object + SQL-to-JSON mapping.
+
+**Commit message:** `feat: add database_setup.sql and json_schemas`
 
 ---
 
@@ -465,269 +446,39 @@ All team members reviewed and agreed to this log before submission.
 > **Commit message:** `feat: add dashboard JSON structure`
 
 ```bash
-mkdir -p database examples
+mkdir -p data/processed
 ```
 
-### `database/database_setup.sql`
-
-```sql
--- MoMo Analytics Platform — Database Setup
--- Author: Abay Mulat Tessema
--- Run: mysql -u root -p momo < database/database_setup.sql
-
-CREATE DATABASE IF NOT EXISTS momo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE momo;
-
--- ─── DDL ────────────────────────────────────────────────────────────────────
-
-CREATE TABLE IF NOT EXISTS categories (
-    id          INT          NOT NULL AUTO_INCREMENT,
-    name        VARCHAR(50)  NOT NULL UNIQUE,           -- machine-readable type
-    description TEXT,                                   -- human-readable label
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS users (
-    id           INT          NOT NULL AUTO_INCREMENT,
-    phone_number VARCHAR(20)  UNIQUE,                   -- counterparty identifier
-    name         VARCHAR(100),                          -- extracted from SMS
-    first_seen   DATE,                                  -- earliest transaction date
-    last_seen    DATE,                                  -- most recent transaction date
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS transactions (
-    id               INT           NOT NULL AUTO_INCREMENT,
-    transaction_id   VARCHAR(100)  UNIQUE,              -- MoMo reference number
-    category_id      INT,
-    user_id          INT,
-    amount           DECIMAL(15,2) CHECK (amount >= 0), -- RWF, non-negative
-    fee              DECIMAL(15,2) CHECK (fee >= 0),    -- service fee, non-negative
-    balance_after    DECIMAL(15,2),                     -- balance post-transaction
-    transaction_date DATETIME,                          -- timestamp from SMS
-    raw_body         TEXT,                              -- original SMS for traceability
-    status           VARCHAR(20)   NOT NULL DEFAULT 'success'
-                                   CHECK (status IN ('success','failed','reversed')),
-    PRIMARY KEY (id),
-    FOREIGN KEY (category_id) REFERENCES categories(id),
-    FOREIGN KEY (user_id)     REFERENCES users(id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS tags (
-    id   INT         NOT NULL AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL UNIQUE,                   -- e.g. flagged, high-value
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Junction table: resolves M:N between transactions and tags
-CREATE TABLE IF NOT EXISTS transaction_tags (
-    transaction_id INT NOT NULL,
-    tag_id         INT NOT NULL,
-    PRIMARY KEY (transaction_id, tag_id),               -- composite PK prevents duplicates
-    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id)         REFERENCES tags(id)         ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS system_logs (
-    id             INT          NOT NULL AUTO_INCREMENT,
-    transaction_id VARCHAR(100),                        -- nullable for pipeline events
-    level          VARCHAR(10)  NOT NULL
-                                CHECK (level IN ('INFO','WARNING','ERROR')),
-    message        TEXT         NOT NULL,
-    created_at     DATETIME     DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ─── Indexes ─────────────────────────────────────────────────────────────────
-
-CREATE INDEX idx_transactions_date     ON transactions(transaction_date);
-CREATE INDEX idx_transactions_category ON transactions(category_id);
-CREATE INDEX idx_transactions_user     ON transactions(user_id);
-CREATE INDEX idx_logs_level            ON system_logs(level);
-CREATE INDEX idx_logs_created          ON system_logs(created_at);
-
--- ─── Seed: categories ────────────────────────────────────────────────────────
-
-INSERT IGNORE INTO categories (name, description) VALUES
-    ('incoming_money',    'Money received from another MoMo user'),
-    ('payment_merchant',  'Payment made to a merchant or business'),
-    ('transfer_sent',     'Money transferred to another MoMo user'),
-    ('bank_deposit',      'Deposit received from a linked bank account'),
-    ('airtime_purchase',  'Airtime top-up for self or another number'),
-    ('cash_power',        'Electricity / Cash Power token purchase'),
-    ('bundle_data',       'Internet bundle or data package purchase'),
-    ('cash_withdrawal',   'Cash withdrawn via an agent'),
-    ('third_party_debit', 'Debit initiated by an authorised third party'),
-    ('reversal',          'Transaction reversal or refund'),
-    ('other',             'Uncategorised or OTP messages');
-
--- ─── Seed: tags ──────────────────────────────────────────────────────────────
-
-INSERT IGNORE INTO tags (name) VALUES
-    ('high-value'),
-    ('flagged'),
-    ('duplicate');
-
--- ─── DML: sample users (5 records) ──────────────────────────────────────────
-
-INSERT IGNORE INTO users (phone_number, name, first_seen, last_seen) VALUES
-    ('0781234567', 'Alice Uwase',    '2024-01-05', '2024-06-20'),
-    ('0782345678', 'Bob Nkurunziza', '2024-02-10', '2024-06-18'),
-    ('0783456789', 'Clara Mukamana', '2024-01-15', '2024-05-30'),
-    ('0784567890', 'David Habimana', '2024-03-01', '2024-06-22'),
-    ('0785678901', 'Eve Ingabire',   '2024-01-20', '2024-06-19');
-
--- ─── DML: sample transactions (5 records) ────────────────────────────────────
-
-INSERT IGNORE INTO transactions
-    (transaction_id, category_id, user_id, amount, fee, balance_after, transaction_date, raw_body, status)
-VALUES
-    ('TXN-001', 1, 1, 50000.00, 0.00,   150000.00, '2024-06-01 08:23:00',
-     'You have received 50,000 RWF from Alice Uwase 0781234567. Your new balance is 150,000 RWF.', 'success'),
-    ('TXN-002', 3, 2, 20000.00, 200.00, 129800.00, '2024-06-02 10:45:00',
-     'TxId: 12345. Your payment of 20,000 RWF to Bob Nkurunziza 0782345678 has been completed.', 'success'),
-    ('TXN-003', 2, 3, 15000.00, 150.00, 114650.00, '2024-06-03 14:10:00',
-     'Your payment of 15,000 RWF to MTN Shop has been completed. Fee: 150 RWF.', 'success'),
-    ('TXN-004', 8, 4,  5000.00,  50.00, 109600.00, '2024-06-04 09:00:00',
-     'You have withdrawn 5,000 RWF. Fee: 50 RWF. Balance: 109,600 RWF.', 'success'),
-    ('TXN-005', 5, 5,  2000.00,  20.00, 107580.00, '2024-06-05 16:30:00',
-     'Your airtime purchase of 2,000 RWF was successful. Fee: 20 RWF.', 'success');
-
--- ─── DML: sample system_logs (5 records) ─────────────────────────────────────
-
-INSERT INTO system_logs (transaction_id, level, message) VALUES
-    ('TXN-001', 'INFO',    'Transaction TXN-001 parsed and inserted successfully.'),
-    ('TXN-002', 'INFO',    'Transaction TXN-002 parsed and inserted successfully.'),
-    ('TXN-003', 'WARNING', 'Merchant name truncated to 100 chars for TXN-003.'),
-    (NULL,      'INFO',    'ETL pipeline completed. 5 records processed, 0 errors.'),
-    ('TXN-999', 'ERROR',   'Transaction TXN-999 skipped: duplicate transaction_id detected.');
-
--- ─── DML: sample tags applied (junction table) ───────────────────────────────
-
-INSERT IGNORE INTO transaction_tags (transaction_id, tag_id) VALUES
-    (1, 1),  -- TXN-001 tagged high-value
-    (2, 2),  -- TXN-002 tagged flagged
-    (1, 2);  -- TXN-001 also tagged flagged
-
--- ─── CRUD verification queries ───────────────────────────────────────────────
-
--- READ: all transactions with category and user
-SELECT t.transaction_id, c.name AS category, u.phone_number,
-       t.amount, t.fee, t.status, t.transaction_date
-FROM transactions t
-JOIN categories c ON t.category_id = c.id
-LEFT JOIN users u ON t.user_id = u.id;
-
--- READ: total amount per category
-SELECT c.name, COUNT(*) AS count, SUM(t.amount) AS total_amount
-FROM transactions t
-JOIN categories c ON t.category_id = c.id
-GROUP BY c.name;
-
--- UPDATE: mark a transaction as reversed
-UPDATE transactions SET status = 'reversed' WHERE transaction_id = 'TXN-002';
-
--- DELETE: remove a test log entry
-DELETE FROM system_logs WHERE message LIKE '%TXN-999%';
-
--- READ: confirm update
-SELECT transaction_id, status FROM transactions WHERE transaction_id = 'TXN-002';
-```
-
-### `examples/json_schemas.json`
+### `data/processed/dashboard.json`
 
 ```json
 {
-  "schemas": {
-    "category": {
-      "id": 1,
-      "name": "incoming_money",
-      "description": "Money received from another MoMo user"
-    },
-    "user": {
-      "id": 1,
-      "phone_number": "0781234567",
-      "name": "Alice Uwase",
-      "first_seen": "2024-01-05",
-      "last_seen": "2024-06-20"
-    },
-    "tag": {
-      "id": 1,
-      "name": "high-value"
-    },
-    "system_log": {
-      "id": 1,
-      "transaction_id": "TXN-001",
-      "level": "INFO",
-      "message": "Transaction TXN-001 parsed and inserted successfully.",
-      "created_at": "2024-06-01T08:23:05Z"
-    },
-    "transaction": {
-      "id": 1,
-      "transaction_id": "TXN-001",
-      "amount": 50000.00,
-      "fee": 0.00,
-      "balance_after": 150000.00,
-      "transaction_date": "2024-06-01T08:23:00Z",
-      "status": "success",
-      "raw_body": "You have received 50,000 RWF from Alice Uwase 0781234567. Your new balance is 150,000 RWF.",
-      "category": {
-        "id": 1,
-        "name": "incoming_money",
-        "description": "Money received from another MoMo user"
-      },
-      "user": {
-        "id": 1,
-        "phone_number": "0781234567",
-        "name": "Alice Uwase"
-      },
-      "tags": [
-        { "id": 1, "name": "high-value" },
-        { "id": 2, "name": "flagged" }
-      ],
-      "logs": [
-        {
-          "id": 1,
-          "level": "INFO",
-          "message": "Transaction TXN-001 parsed and inserted successfully.",
-          "created_at": "2024-06-01T08:23:05Z"
-        }
-      ]
-    }
+  "kpis": {
+    "Total Transactions": 0,
+    "Total Amount (RWF)": 0,
+    "Total Fees (RWF)": 0,
+    "Unique Users": 0
   },
-  "sql_to_json_mapping": {
-    "categories.id":            "category.id",
-    "categories.name":          "category.name",
-    "categories.description":   "category.description",
-    "users.id":                 "user.id",
-    "users.phone_number":       "user.phone_number",
-    "users.name":               "user.name",
-    "transactions.id":          "transaction.id",
-    "transactions.category_id": "transaction.category (nested object)",
-    "transactions.user_id":     "transaction.user (nested object)",
-    "transaction_tags":         "transaction.tags (nested array)",
-    "system_logs":              "transaction.logs (nested array)"
-  }
+  "categories": [
+    { "name": "incoming_money",    "count": 0 },
+    { "name": "payment_merchant",  "count": 0 },
+    { "name": "transfer_sent",     "count": 0 },
+    { "name": "bank_deposit",      "count": 0 },
+    { "name": "airtime_purchase",  "count": 0 },
+    { "name": "cash_power",        "count": 0 },
+    { "name": "bundle_data",       "count": 0 },
+    { "name": "cash_withdrawal",   "count": 0 },
+    { "name": "third_party_debit", "count": 0 },
+    { "name": "reversal",          "count": 0 },
+    { "name": "other",             "count": 0 }
+  ],
+  "monthly_totals": []
 }
 ```
 
-**Commit message:** `feat: add database_setup.sql and json_schemas` (verify before deadline)
+**Commit message:** `feat: add dashboard JSON structure`
 
-```
-/
-├── README.md                        ← updated with database section
-├── docs/
-│   ├── erd.png                      ← exported from dbdiagram.io
-│   ├── design_document.md           ← rationale + data dictionary + queries + security rules
-│   └── ai_usage_log.md              ← actual interaction log
-├── database/
-│   └── database_setup.sql           ← DDL + indexes + seed + 5 DML records + CRUD queries
-├── examples/
-│   └── json_schemas.json            ← all entities + complex nested transaction object + mapping
-└── data/
-    └── processed/
-        └── dashboard.json
-```
+---
 
 ---
 
