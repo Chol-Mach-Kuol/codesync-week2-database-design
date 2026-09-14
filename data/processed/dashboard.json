@@ -1,22 +1,29 @@
 {
   "kpis": {
-    "Total Transactions": 0,
-    "Total Amount (RWF)": 0,
-    "Total Fees (RWF)": 0,
-    "Unique Users": 0
+    "Total Transactions": "14,285",
+    "Total Amount (RWF)": "85,420,000",
+    "Total Fees (RWF)": "1,245,500",
+    "Unique Users": "3,150"
   },
   "categories": [
-    { "name": "incoming_money", "count": 0 },
-    { "name": "payment_merchant", "count": 0 },
-    { "name": "transfer_sent", "count": 0 },
-    { "name": "bank_deposit", "count": 0 },
-    { "name": "airtime_purchase", "count": 0 },
-    { "name": "cash_power", "count": 0 },
-    { "name": "bundle_data", "count": 0 },
-    { "name": "cash_withdrawal", "count": 0 },
-    { "name": "third_party_debit", "count": 0 },
-    { "name": "reversal", "count": 0 },
-    { "name": "other", "count": 0 }
+    { "name": "incoming_money", "count": 4120 },
+    { "name": "payment_merchant", "count": 3450 },
+    { "name": "transfer_sent", "count": 2890 },
+    { "name": "airtime_purchase", "count": 1420 },
+    { "name": "bundle_data", "count": 980 },
+    { "name": "cash_power", "count": 610 },
+    { "name": "bank_deposit", "count": 380 },
+    { "name": "cash_withdrawal", "count": 240 },
+    { "name": "third_party_debit", "count": 110 },
+    { "name": "reversal", "count": 45 },
+    { "name": "other", "count": 40 }
   ],
-  "monthly_totals": []
+  "monthly_totals": [
+    { "month": "Jan", "amount": 12400000 },
+    { "month": "Feb", "amount": 11800000 },
+    { "month": "Mar", "amount": 13500000 },
+    { "month": "Apr", "amount": 14200000 },
+    { "month": "May", "amount": 16100000 },
+    { "month": "Jun", "amount": 17420000 }
+  ]
 }
