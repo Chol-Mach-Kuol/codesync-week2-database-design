@@ -3,13 +3,13 @@
 **Project:** CodeSync MoMo SMS Data Processing System
 **Author:** Chol Mach Kuol Chol
 **Branch:** feature/project-lead
-**Date:** September 2024
+**Date:** September 2026
 
 ---
 
 ## Overview
 
-The MoMo Analytics Platform database is built on SQLite and consists of six
+The MoMo Analytics Platform database is built on MySQL and consists of six
 tables designed to store, categorize, tag, and audit every MoMo SMS transaction
 extracted from the XML data source. The schema was designed with three priorities
 in mind: referential integrity to prevent orphaned or inconsistent records,
@@ -194,13 +194,13 @@ WHERE tg.name = 'high-value';
 SELECT id, transaction_id, message, created_at
 FROM system_logs
 WHERE level = 'ERROR'
-  AND created_at >= datetime('now', '-7 days')
+  AND created_at >= NOW() - INTERVAL 7 DAY
 ORDER BY created_at DESC;
 ```
 
 ### 5. Monthly transaction totals
 ```sql
-SELECT strftime('%Y-%m', transaction_date) AS month,
+SELECT DATE_FORMAT(transaction_date, '%Y-%m') AS month,
        COUNT(*)      AS tx_count,
        SUM(amount)   AS total_amount,
        SUM(fee)      AS total_fees
@@ -224,4 +224,4 @@ The following rules are enforced at the database layer, independent of applicati
 7. `CHECK (fee >= 0)` — rejects negative fee values at insert time.
 8. `CHECK (status IN ('success','failed','reversed'))` — rejects any unknown status string.
 9. `CHECK (level IN ('INFO','WARNING','ERROR'))` — rejects invalid log level values.
-10. `PRAGMA foreign_keys = ON` — enforces all REFERENCES constraints at runtime, preventing orphaned foreign key values.
+10. `ENGINE=InnoDB` — enforces all REFERENCES constraints at runtime, preventing orphaned foreign key values.

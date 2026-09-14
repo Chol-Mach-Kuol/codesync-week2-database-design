@@ -417,11 +417,11 @@ AI was not asked to design, generate, or explain any of the above.
 
 | Date       | Team Member  | AI Tool  | What We Asked                                          | How We Used It                                              |
 |------------|--------------|----------|--------------------------------------------------------|-------------------------------------------------------------|
-| 2026-09-13 | Kuol Akech   | Amazon Q | Spell-check on a comment inside `database_setup.sql`   | Fixed a typo in a comment — no logic or code was changed    |
-| 2026-09-13 | Kuol Akech   | Amazon Q | "Is `AUTO_INCREMENT` one word in MySQL?"               | Confirmed spelling of a keyword — we already knew the logic |
-| 2026-09-13 | Alier Akuang | Amazon Q | Grammar check on the README database section paragraph | Two words reworded — technical content unchanged            |
-| 2026-09-13 | Chol Mach    | Amazon Q | "What does MySQL best practice say about index naming?" | Read the answer for reference — index decisions made by us  |
-| 2026-09-13 | Abay Mulat   | Amazon Q | "Is my JSON missing a closing bracket?" (syntax check) | Found a missing `}` — the JSON structure was designed by us |
+| 2024-09-13 | Kuol Akech   | Amazon Q | Spell-check on a comment inside `database_setup.sql`   | Fixed a typo in a comment — no logic or code was changed    |
+| 2024-09-13 | Kuol Akech   | Amazon Q | "Is `AUTO_INCREMENT` one word in MySQL?"               | Confirmed spelling of a keyword — we already knew the logic |
+| 2024-09-13 | Alier Akuang | Amazon Q | Grammar check on the README database section paragraph | Two words reworded — technical content unchanged            |
+| 2024-09-13 | Chol Mach    | Amazon Q | "What does MySQL best practice say about index naming?" | Read the answer for reference — index decisions made by us  |
+| 2024-09-13 | Abay Mulat   | Amazon Q | "Is my JSON missing a closing bracket?" (syntax check) | Found a missing `}` — the JSON structure was designed by us |
 
 ---
 
