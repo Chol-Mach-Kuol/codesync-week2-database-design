@@ -101,6 +101,10 @@ Sprint progress and task tracking: [CodeSync Scrum Board](https://github.com/use
 
 [CodeSync Participation Sheet](https://docs.google.com/spreadsheets/d/1Z20IlE_FNP3cuFRHSqpB2NT5qsGCkFgGML61RSWbjaI/edit?usp=sharing)
 
+## Design Document PDF
+
+[Database Design Document (PDF)](https://drive.google.com/file/d/1d3IZJ6zTUTRIkgpK4djzOsD_sEP_Pmuk/view?usp=sharing)
+
 ---
 
 ## AI Usage
