@@ -116,7 +116,7 @@ Core table. One row per MoMo SMS transaction.
 | user_id | INTEGER | FK → users.id | Counterparty user |
 | amount | REAL | CHECK (amount >= 0) | Transaction amount in RWF |
 | fee | REAL | CHECK (fee >= 0) | Service fee in RWF |
-| balance_after | REAL | | Account balance after transaction |
+| balance_after | REAL | CHECK (balance_after >= 0) | Account balance after transaction |
 | transaction_date | DATETIME | | Timestamp parsed from SMS body |
 | raw_body | TEXT | | Original SMS text for traceability |
 | status | VARCHAR(20) | CHECK IN ('success','failed','reversed'), DEFAULT 'success' | Transaction outcome |
@@ -232,6 +232,7 @@ The following rules are enforced at the database layer, independent of applicati
 5. `transaction_tags(transaction_id, tag_id)` — **composite PK** — prevents the same tag being applied to the same transaction more than once.
 6. `CHECK (amount >= 0)` — rejects negative transaction amounts at insert time.
 7. `CHECK (fee >= 0)` — rejects negative fee values at insert time.
+8. `CHECK (balance_after >= 0)` — rejects negative balance values at insert time.
 8. `CHECK (status IN ('success','failed','reversed'))` — rejects any unknown status string.
 9. `CHECK (level IN ('INFO','WARNING','ERROR'))` — rejects invalid log level values.
 10. `ENGINE=InnoDB` — enforces all REFERENCES constraints at runtime, preventing orphaned foreign key values.
