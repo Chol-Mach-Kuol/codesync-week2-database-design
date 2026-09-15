@@ -73,6 +73,10 @@ two largest tables in the schema.
 | transactions ↔ tags | Many-to-Many (M:N) | Resolved via `transaction_tags` junction table |
 | system_logs → transactions | Many-to-One (M:1) | Many log entries can reference one transaction |
 
+![ERD Diagram](erd_diagram.png)
+
+![SHOW TABLES](screenshots/screenshot_1_tables.png)
+
 ---
 
 ## Data Dictionary
@@ -209,6 +213,12 @@ GROUP BY month
 ORDER BY month;
 ```
 
+![SELECT Queries](screenshots/screenshot_2_select_queries.png)
+
+![UPDATE](screenshots/screenshot_3_update.png)
+
+![DELETE](screenshots/screenshot_4_delete.png)
+
 ---
 
 ## Security & Unique Constraint Rules
@@ -225,3 +235,7 @@ The following rules are enforced at the database layer, independent of applicati
 8. `CHECK (status IN ('success','failed','reversed'))` — rejects any unknown status string.
 9. `CHECK (level IN ('INFO','WARNING','ERROR'))` — rejects invalid log level values.
 10. `ENGINE=InnoDB` — enforces all REFERENCES constraints at runtime, preventing orphaned foreign key values.
+
+![UNIQUE Constraint Violation (ERROR 1062)](screenshots/screenshot_5_unique_constraint.png)
+
+![CHECK Constraint Violation (ERROR 3819)](screenshots/screenshot_6_check_constraint.png)
