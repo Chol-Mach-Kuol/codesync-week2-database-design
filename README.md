@@ -93,6 +93,12 @@ Full design rationale, data dictionary, sample queries, and security rules are i
 
 ---
 
+## Scrum Board
+
+Sprint progress and task tracking: [CodeSync Scrum Board](https://github.com/users/Chol-Mach-Kuol/projects/2)
+
+---
+
 ## AI Usage
 
 AI was used only for grammar checks and keyword spelling confirmation.
