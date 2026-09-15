@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     amount           DECIMAL(15,2)          COMMENT 'Transaction amount in RWF',
     fee              DECIMAL(15,2)          COMMENT 'Service fee in RWF',
     balance_after    DECIMAL(15,2)          COMMENT 'Account balance after transaction',
+    CONSTRAINT chk_balance   CHECK (balance_after >= 0),
     transaction_date DATETIME               COMMENT 'Timestamp parsed from SMS body',
     raw_body         TEXT                   COMMENT 'Original SMS text for traceability',
     status           VARCHAR(20)  NOT NULL DEFAULT 'success' COMMENT 'Transaction outcome: success | failed | reversed',
